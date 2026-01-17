@@ -1,0 +1,29 @@
+---
+# Validate all required environment variables are set in Coolify
+- name: Get current environment variables from Coolify
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}/envs"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+    return_content: true
+  register: coolify_env_vars
+  no_log: false
+
+- name: Parse environment variable keys
+  ansible.builtin.set_fact:
+    configured_env_keys: "{{ coolify_env_vars.json | map(attribute='key') | list }}"
+  no_log: false
+
+- name: Validate required environment variables are present
+  ansible.builtin.assert:
+    that:
+      - item in configured_env_keys
+    fail_msg: "Required environment variable '{{ item }}' is not configured in Coolify"
+    success_msg: "Environment variable '{{ item }}' is configured"
+  loop: "{{ required_env_vars }}"
+  no_log: false
+
+- name: Display validation summary
+  ansible.builtin.debug:
+    msg: "All {{ required_env_vars | length }} required environment variables are configured in Coolify"

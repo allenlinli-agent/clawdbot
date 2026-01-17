@@ -1,0 +1,9 @@
+---
+# ansible/roles/clawdbot-config/tasks/main.yml
+# Main tasks for Clawdbot configuration validation
+
+- name: Include environment variable validation tasks
+  ansible.builtin.include_tasks: validate-env.yml
+
+- name: Include bootstrap script validation tasks
+  ansible.builtin.include_tasks: validate-bootstrap.yml

@@ -1,0 +1,24 @@
+---
+# Default variables for clawdbot-config role
+
+# Path to the bootstrap script (relative to project root)
+bootstrap_script_path: "{{ playbook_dir }}/../scripts/coolify-bootstrap.sh"
+
+# Required environment variables that must be configured in Coolify
+# These are used by the bootstrap script to generate clawdbot.json
+required_env_vars:
+  # Core configuration
+  - HOME
+  - TERM
+  - NODE_ENV
+  - CLAWDBOT_GATEWAY_PORT
+  - CLAWDBOT_GATEWAY_BIND
+  - CLAWDBOT_BRIDGE_PORT
+
+  # Secrets (from Bitwarden)
+  - TELEGRAM_BOT_TOKEN
+  - ANTHROPIC_API_KEY
+  - CLAWDBOT_GATEWAY_TOKEN
+  - ALLEN_TELEGRAM_ID
+  - KIM_TELEGRAM_ID
+  - SUE_TELEGRAM_ID

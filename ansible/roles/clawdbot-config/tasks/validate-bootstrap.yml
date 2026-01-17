@@ -1,0 +1,25 @@
+---
+# Verify bootstrap script exists and is executable
+- name: Check if bootstrap script exists
+  ansible.builtin.stat:
+    path: "{{ bootstrap_script_path }}"
+  register: bootstrap_script
+  delegate_to: localhost
+
+- name: Verify bootstrap script exists
+  ansible.builtin.assert:
+    that:
+      - bootstrap_script.stat.exists
+    fail_msg: "Bootstrap script not found at {{ bootstrap_script_path }}"
+    success_msg: "Bootstrap script found at {{ bootstrap_script_path }}"
+
+- name: Verify bootstrap script is executable
+  ansible.builtin.assert:
+    that:
+      - bootstrap_script.stat.executable
+    fail_msg: "Bootstrap script {{ bootstrap_script_path }} is not executable"
+    success_msg: "Bootstrap script is executable"
+
+- name: Display bootstrap script info
+  ansible.builtin.debug:
+    msg: "Bootstrap script validated: {{ bootstrap_script_path }} ({{ bootstrap_script.stat.size }} bytes)"
