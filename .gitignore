@@ -22,6 +22,9 @@ apps/macos/.build/
 # Ansible sensitive files
 ansible/inventory/production.yml
 ansible/vault/secrets.yml
+
+# Claude MCP configuration with API keys
+.claude.json
 apps/shared/ClawdbotKit/.build/
 **/ModuleCache/
 bin/

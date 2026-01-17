@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "coolify": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@masonator/coolify-mcp"
+      ],
+      "env": {
+        "COOLIFY_API_KEY": "your-coolify-api-token-here",
+        "COOLIFY_API_URL": "https://your-coolify-instance.com/api/v1"
+      }
+    }
+  }
+}
