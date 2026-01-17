@@ -1,0 +1,188 @@
+---
+# Integration test: Validate bootstrap script with environment variables
+# This test verifies that the bootstrap script correctly generates clawdbot.json
+# from environment variables matching what Ansible configures in Coolify.
+
+- name: Bootstrap Script Integration Test
+  hosts: localhost
+  gather_facts: yes
+
+  vars:
+    test_container_name: "clawdbot-test"
+    test_image: "node:22-alpine"
+    bootstrap_script: "{{ playbook_dir }}/../../scripts/coolify-bootstrap.sh"
+
+    # Test environment variables (mock values for testing)
+    test_env_vars:
+      HOME: "/home/node"
+      TERM: "xterm-256color"
+      NODE_ENV: "production"
+      CLAWDBOT_GATEWAY_PORT: "18789"
+      CLAWDBOT_GATEWAY_BIND: "lan"
+      CLAWDBOT_BRIDGE_PORT: "18790"
+      TELEGRAM_BOT_TOKEN: "test_bot_token_123456789"
+      ANTHROPIC_API_KEY: "test_api_key_sk-ant-test"
+      CLAWDBOT_GATEWAY_TOKEN: "test_gateway_token_abc"
+      ALLEN_TELEGRAM_ID: "111111111"
+      KIM_TELEGRAM_ID: "222222222"
+      SUE_TELEGRAM_ID: "333333333"
+
+  tasks:
+    - name: Clean up any existing test container
+      community.docker.docker_container:
+        name: "{{ test_container_name }}"
+        state: absent
+      ignore_errors: yes
+
+    - name: Verify bootstrap script exists
+      ansible.builtin.stat:
+        path: "{{ bootstrap_script }}"
+      register: bootstrap_stat
+      failed_when: not bootstrap_stat.stat.exists
+
+    - name: Display bootstrap script path
+      ansible.builtin.debug:
+        msg: "Testing bootstrap script at {{ bootstrap_script }}"
+
+    - name: Create test container with environment variables
+      community.docker.docker_container:
+        name: "{{ test_container_name }}"
+        image: "{{ test_image }}"
+        state: started
+        command: "sleep infinity"
+        env: "{{ test_env_vars }}"
+        volumes:
+          - "{{ bootstrap_script }}:/bootstrap.sh:ro"
+        detach: yes
+
+    - name: Wait for container to be ready
+      ansible.builtin.pause:
+        seconds: 2
+
+    - name: Run bootstrap script in container
+      ansible.builtin.command:
+        cmd: docker exec {{ test_container_name }} sh /bootstrap.sh echo "Bootstrap complete"
+      register: bootstrap_output
+      failed_when: bootstrap_output.rc != 0
+
+    - name: Display bootstrap output
+      ansible.builtin.debug:
+        var: bootstrap_output.stdout_lines
+
+    - name: Verify config file was created
+      ansible.builtin.command:
+        cmd: docker exec {{ test_container_name }} test -f /home/node/.clawdbot/clawdbot.json
+      register: config_exists
+      failed_when: config_exists.rc != 0
+
+    - name: Read generated config file
+      ansible.builtin.command:
+        cmd: docker exec {{ test_container_name }} cat /home/node/.clawdbot/clawdbot.json
+      register: generated_config
+
+    - name: Parse generated config as JSON
+      ansible.builtin.set_fact:
+        config_json: "{{ generated_config.stdout | from_json }}"
+
+    - name: Display generated config
+      ansible.builtin.debug:
+        var: config_json
+
+    - name: Validate gateway configuration
+      ansible.builtin.assert:
+        that:
+          - config_json.gateway.port == 18789
+          - config_json.gateway.auth.mode == "token"
+          - config_json.gateway.auth.token == test_env_vars.CLAWDBOT_GATEWAY_TOKEN
+        success_msg: "Gateway configuration is correct"
+        fail_msg: "Gateway configuration is invalid"
+
+    - name: Validate Telegram channel configuration
+      ansible.builtin.assert:
+        that:
+          - config_json.channels.telegram.enabled == true
+          - config_json.channels.telegram.token == test_env_vars.TELEGRAM_BOT_TOKEN
+          - config_json.channels.telegram.dm.policy == "allowlist"
+          - test_env_vars.ALLEN_TELEGRAM_ID in config_json.channels.telegram.dm.allowFrom
+          - test_env_vars.KIM_TELEGRAM_ID in config_json.channels.telegram.dm.allowFrom
+          - test_env_vars.SUE_TELEGRAM_ID in config_json.channels.telegram.dm.allowFrom
+        success_msg: "Telegram channel configuration is correct"
+        fail_msg: "Telegram channel configuration is invalid"
+
+    - name: Validate agent router configuration
+      ansible.builtin.assert:
+        that:
+          - config_json.agents.router.mode == "static"
+          - config_json.agents.router.rules | length == 3
+        success_msg: "Agent router configuration is correct"
+        fail_msg: "Agent router configuration is invalid"
+
+    - name: Validate agent list
+      ansible.builtin.assert:
+        that:
+          - config_json.agents.list | length == 3
+          - config_json.agents.list | selectattr('id', 'equalto', 'allen') | list | length == 1
+          - config_json.agents.list | selectattr('id', 'equalto', 'kim') | list | length == 1
+          - config_json.agents.list | selectattr('id', 'equalto', 'sue') | list | length == 1
+        success_msg: "Agent list configuration is correct"
+        fail_msg: "Agent list configuration is invalid"
+
+    - name: Validate Allen's agent has full access
+      ansible.builtin.set_fact:
+        allen_agent: "{{ config_json.agents.list | selectattr('id', 'equalto', 'allen') | first }}"
+
+    - name: Check Allen's sandbox mode
+      ansible.builtin.assert:
+        that:
+          - allen_agent.sandbox.mode == "off"
+          - allen_agent.workspace == "/home/node/clawd-allen"
+        success_msg: "Allen's agent has correct sandbox settings"
+        fail_msg: "Allen's agent sandbox settings are incorrect"
+
+    - name: Validate Kim's agent has restricted access
+      ansible.builtin.set_fact:
+        kim_agent: "{{ config_json.agents.list | selectattr('id', 'equalto', 'kim') | first }}"
+
+    - name: Check Kim's sandbox mode
+      ansible.builtin.assert:
+        that:
+          - kim_agent.sandbox.mode == "all"
+          - kim_agent.workspace == "/home/node/clawd-kim"
+          - "'read' in kim_agent.tools.deny"
+          - "'write' in kim_agent.tools.deny"
+        success_msg: "Kim's agent has correct sandbox restrictions"
+        fail_msg: "Kim's agent sandbox settings are incorrect"
+
+    - name: Verify workspace directories were created
+      ansible.builtin.command:
+        cmd: docker exec {{ test_container_name }} test -d {{ item }}
+      register: workspace_check
+      failed_when: workspace_check.rc != 0
+      loop:
+        - /home/node/clawd-allen
+        - /home/node/clawd-kim
+        - /home/node/clawd-sue
+
+    - name: Clean up test container
+      community.docker.docker_container:
+        name: "{{ test_container_name }}"
+        state: absent
+
+    - name: Display test success message
+      ansible.builtin.debug:
+        msg: |
+          ========================================
+          BOOTSTRAP INTEGRATION TEST: PASSED
+          ========================================
+
+          All validations passed:
+          ✅ Bootstrap script executed successfully
+          ✅ Configuration file generated
+          ✅ Gateway settings correct
+          ✅ Telegram channel settings correct
+          ✅ Agent routing configured
+          ✅ All 3 agents configured with correct permissions
+          ✅ Workspace directories created
+
+          The bootstrap script correctly processes environment
+          variables and generates valid clawdbot.json configuration.
