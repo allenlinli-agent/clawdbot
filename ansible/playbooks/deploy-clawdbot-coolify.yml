@@ -3,6 +3,7 @@
 - name: Deploy Clawdbot to Coolify-managed VPS
   hosts: clawdbot_vps
   gather_facts: yes
+  tags: ['vps', 'provision']
 
   pre_tasks:
     - name: Validate BWS_ACCESS_TOKEN environment variable is set
@@ -20,6 +21,9 @@
 - name: Configure Coolify Application
   hosts: localhost
   gather_facts: no
+
+  vars_files:
+    - ../vault/secrets.yml
 
   roles:
     - role: coolify-app
