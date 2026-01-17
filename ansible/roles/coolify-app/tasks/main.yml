@@ -1,0 +1,13 @@
+---
+# Main tasks file for coolify-app role
+- name: Include secret retrieval tasks
+  ansible.builtin.include_tasks: secrets.yml
+
+- name: Include environment variable configuration tasks
+  ansible.builtin.include_tasks: env-vars.yml
+
+- name: Include app settings configuration tasks
+  ansible.builtin.include_tasks: app-settings.yml
+
+- name: Include health check configuration tasks
+  ansible.builtin.include_tasks: health-check.yml

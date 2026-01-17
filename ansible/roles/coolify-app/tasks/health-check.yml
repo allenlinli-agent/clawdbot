@@ -1,0 +1,19 @@
+---
+# Configure health check settings
+- name: Configure application health check
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      health_check_enabled: true
+      health_check_path: "/"
+      health_check_port: "18789"
+      health_check_interval: 30
+      health_check_timeout: 10
+      health_check_retries: 3
+      health_check_start_period: 60
+    status_code: [200, 201]

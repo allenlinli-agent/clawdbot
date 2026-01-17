@@ -1,0 +1,45 @@
+---
+# Configure Coolify environment variables via API
+- name: Set core environment variables in Coolify
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}/envs"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      key: "{{ item.key }}"
+      value: "{{ item.value }}"
+      is_preview: false
+    status_code: [200, 201, 409]
+  loop:
+    - { key: "HOME", value: "/home/node" }
+    - { key: "TERM", value: "xterm-256color" }
+    - { key: "NODE_ENV", value: "production" }
+    - { key: "CLAWDBOT_GATEWAY_PORT", value: "18789" }
+    - { key: "CLAWDBOT_GATEWAY_BIND", value: "lan" }
+    - { key: "CLAWDBOT_BRIDGE_PORT", value: "18790" }
+  no_log: false
+
+- name: Set secret environment variables in Coolify
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}/envs"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      key: "{{ item.key }}"
+      value: "{{ item.value }}"
+      is_preview: false
+    status_code: [200, 201, 409]
+  loop:
+    - { key: "TELEGRAM_BOT_TOKEN", value: "{{ telegram_bot_token }}" }
+    - { key: "ANTHROPIC_API_KEY", value: "{{ anthropic_api_key }}" }
+    - { key: "CLAWDBOT_GATEWAY_TOKEN", value: "{{ clawdbot_gateway_token }}" }
+    - { key: "ALLEN_TELEGRAM_ID", value: "{{ allen_telegram_id }}" }
+    - { key: "KIM_TELEGRAM_ID", value: "{{ kim_telegram_id }}" }
+    - { key: "SUE_TELEGRAM_ID", value: "{{ sue_telegram_id }}" }
+  no_log: true

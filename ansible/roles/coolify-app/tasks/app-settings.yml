@@ -1,0 +1,32 @@
+---
+# Configure Coolify application settings via API
+- name: Update application settings
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}"
+    method: PATCH
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      build_pack: "dockerfile"
+      dockerfile_location: "Dockerfile"
+      start_command: "/bin/bash scripts/coolify-bootstrap.sh node dist/index.js gateway-daemon --bind lan --port 18789"
+      ports_exposes: "18789,18790"
+      ports_mappings: "18789:18789,18790:18790"
+    status_code: [200, 201]
+
+- name: Configure persistent volume
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}/storages"
+    method: POST
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+      Content-Type: "application/json"
+    body_format: json
+    body:
+      name: "clawdbot-data"
+      mount_path: "/home/node"
+      host_path: ""
+    status_code: [200, 201, 409]
+  ignore_errors: yes  # Volume might already exist
