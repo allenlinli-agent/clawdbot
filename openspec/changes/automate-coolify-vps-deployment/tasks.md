@@ -18,7 +18,7 @@
 - [ ] 2.6 Add secret: `KIM_TELEGRAM_ID` (from @userinfobot)
 - [ ] 2.7 Add secret: `SUE_TELEGRAM_ID` (from @userinfobot)
 - [ ] 2.8 Generate BWS access token from Bitwarden Secrets Manager
-- [ ] 2.9 Document secret setup process in `docs/deployment/ansible-coolify.md`
+- [x] 2.9 Document secret setup process in `docs/deployment/ansible-coolify.md`
 
 ## 3. Investigate Coolify Integration
 
@@ -56,24 +56,24 @@
 
 ## 6. Clawdbot Config Role (`clawdbot-config`)
 
-- [ ] 6.1 Create role directory: `ansible/roles/clawdbot-config/`
-- [ ] 6.2 Create `tasks/main.yml` with validation tasks
-- [ ] 6.3 Create `tasks/validate-env.yml` - Validate all required env vars are set in Coolify
-- [ ] 6.4 Create `tasks/validate-bootstrap.yml` - Verify bootstrap script exists in repo
-- [ ] 6.5 Add `defaults/main.yml` with expected environment variable list
-- [ ] 6.6 Document environment variable contract with bootstrap script
+- [x] 6.1 Create role directory: `ansible/roles/clawdbot-config/`
+- [x] 6.2 Create `tasks/main.yml` with validation tasks
+- [x] 6.3 Create `tasks/validate-env.yml` - Validate all required env vars are set in Coolify
+- [x] 6.4 Create `tasks/validate-bootstrap.yml` - Verify bootstrap script exists in repo
+- [x] 6.5 Add `defaults/main.yml` with expected environment variable list
+- [x] 6.6 Document environment variable contract with bootstrap script
 
 ## 7. Deployment Validation Role (`deployment-validation`)
 
-- [ ] 7.1 Create role directory: `ansible/roles/deployment-validation/`
-- [ ] 7.2 Create `tasks/main.yml` with validation task includes
-- [ ] 7.3 Create `tasks/container-status.yml` - Check container running state via Docker API
-- [ ] 7.4 Create `tasks/port-check.yml` - Verify ports 18789, 18790 are listening
-- [ ] 7.5 Create `tasks/health-endpoint.yml` - HTTP GET to health check endpoint with retry logic
-- [ ] 7.6 Create `tasks/config-file.yml` - SSH to VPS and verify /home/node/.clawdbot/clawdbot.json exists
-- [ ] 7.7 Create `tasks/telegram-test.yml` - Send test message via Telegram API and verify response
-- [ ] 7.8 Create `tasks/report.yml` - Generate validation report with pass/fail status
-- [ ] 7.9 Add `defaults/main.yml` with timeout values and retry counts
+- [x] 7.1 Create role directory: `ansible/roles/deployment-validation/`
+- [x] 7.2 Create `tasks/main.yml` with validation task includes
+- [x] 7.3 Create `tasks/container-status.yml` - Check container running state via Docker API
+- [x] 7.4 Create `tasks/port-check.yml` - Verify ports 18789, 18790 are listening
+- [x] 7.5 Create `tasks/health-endpoint.yml` - HTTP GET to health check endpoint with retry logic
+- [x] 7.6 Create `tasks/config-file.yml` - SSH to VPS and verify /home/node/.clawdbot/clawdbot.json exists
+- [x] 7.7 Create `tasks/telegram-test.yml` - Send test message via Telegram API and verify response
+- [x] 7.8 Create `tasks/report.yml` - Generate validation report with pass/fail status
+- [x] 7.9 Add `defaults/main.yml` with timeout values and retry counts
 - [ ] 7.10 Test validation role against running deployment
 
 ## 8. Main Playbook
@@ -82,8 +82,8 @@
 - [x] 8.2 Add pre-flight check: validate BWS_ACCESS_TOKEN environment variable is set
 - [x] 8.3 Include `vps-provision` role with become: yes
 - [x] 8.4 Include `coolify-app` role
-- [ ] 8.5 Include `clawdbot-config` role
-- [ ] 8.6 Include `deployment-validation` role
+- [x] 8.5 Include `clawdbot-config` role
+- [x] 8.6 Include `deployment-validation` role
 - [x] 8.7 Add error handling and failure notifications
 - [ ] 8.8 Test full playbook execution end-to-end
 
@@ -99,9 +99,9 @@
 ## 10. Ansible Vault Setup
 
 - [x] 10.1 Create `ansible/vault/secrets.yml` for infrastructure secrets
-- [ ] 10.2 Add VPS SSH private key to vault
+- [x] 10.2 Add VPS SSH private key to vault
 - [x] 10.3 Add Coolify API token to vault (if using API)
-- [ ] 10.4 Encrypt vault file: `ansible-vault encrypt ansible/vault/secrets.yml`
+- [x] 10.4 Encrypt vault file: `ansible-vault encrypt ansible/vault/secrets.yml`
 - [x] 10.5 Document vault password storage (recommend Bitwarden)
 - [x] 10.6 Add `--ask-vault-pass` to playbook execution docs
 
@@ -116,14 +116,14 @@
 
 ## 12. Documentation
 
-- [ ] 12.1 Create `docs/deployment/ansible-coolify.md` deployment guide
-- [ ] 12.2 Document prerequisites (Ansible, Bitwarden, SSH, Coolify)
-- [ ] 12.3 Document Bitwarden Secrets Manager setup steps
-- [ ] 12.4 Document inventory configuration
-- [ ] 12.5 Document playbook execution: `ansible-playbook -i inventory/production.yml playbooks/deploy-clawdbot-coolify.yml`
-- [ ] 12.6 Document rollback procedures
-- [ ] 12.7 Document troubleshooting common issues
-- [ ] 12.8 Add deployment checklist for operators
+- [x] 12.1 Create `docs/deployment/ansible-coolify.md` deployment guide
+- [x] 12.2 Document prerequisites (Ansible, Bitwarden, SSH, Coolify)
+- [x] 12.3 Document Bitwarden Secrets Manager setup steps
+- [x] 12.4 Document inventory configuration
+- [x] 12.5 Document playbook execution: `ansible-playbook -i inventory/production.yml playbooks/deploy-clawdbot-coolify.yml`
+- [x] 12.6 Document rollback procedures
+- [x] 12.7 Document troubleshooting common issues
+- [x] 12.8 Add deployment checklist for operators
 
 ## 13. Testing
 
@@ -138,21 +138,21 @@
 
 ## 14. Security Audit
 
-- [ ] 14.1 Audit all tasks for `no_log: true` on secret-handling operations
-- [ ] 14.2 Verify no secrets are hardcoded in playbooks or roles
-- [ ] 14.3 Verify Ansible Vault is encrypted
-- [ ] 14.4 Verify inventory files are in `.gitignore`
-- [ ] 14.5 Review UFW firewall rules for least privilege
-- [ ] 14.6 Review SSH hardening configuration
-- [ ] 14.7 Verify `clawdbot` user has minimal necessary permissions
+- [x] 14.1 Audit all tasks for `no_log: true` on secret-handling operations
+- [x] 14.2 Verify no secrets are hardcoded in playbooks or roles
+- [x] 14.3 Verify Ansible Vault is encrypted
+- [x] 14.4 Verify inventory files are in `.gitignore`
+- [x] 14.5 Review UFW firewall rules for least privilege
+- [x] 14.6 Review SSH hardening configuration
+- [x] 14.7 Verify `clawdbot` user has minimal necessary permissions
 
 ## 15. Integration with Existing Codebase
 
-- [ ] 15.1 Verify `scripts/coolify-bootstrap.sh` exists and is executable
-- [ ] 15.2 Document environment variable contract between Ansible and bootstrap script
-- [ ] 15.3 Add integration test: set env vars via Ansible, run bootstrap script, validate generated config
-- [ ] 15.4 Update `CLAUDE.md` with Ansible deployment information
-- [ ] 15.5 Add reference to Ansible deployment in main README.md
+- [x] 15.1 Verify `scripts/coolify-bootstrap.sh` exists and is executable
+- [x] 15.2 Document environment variable contract between Ansible and bootstrap script
+- [x] 15.3 Add integration test: set env vars via Ansible, run bootstrap script, validate generated config
+- [x] 15.4 Update `CLAUDE.md` with Ansible deployment information
+- [x] 15.5 Add reference to Ansible deployment in main README.md
 
 ## 16. CI/CD Integration (Optional Future Work)
 
