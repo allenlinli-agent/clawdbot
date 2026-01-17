@@ -1,0 +1,117 @@
+{
+  "gateway": {
+    "port": 18789,
+    "auth": {
+      "mode": "token",
+      "token": "${CLAWDBOT_GATEWAY_TOKEN}"
+    },
+    "reload": {
+      "mode": "hybrid"
+    }
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "token": "${TELEGRAM_BOT_TOKEN}",
+      "dm": {
+        "policy": "allowlist",
+        "allowFrom": [
+          "${ALLEN_TELEGRAM_ID}",
+          "${KIM_TELEGRAM_ID}",
+          "${SUE_TELEGRAM_ID}"
+        ]
+      }
+    }
+  },
+  "agents": {
+    "router": {
+      "mode": "static",
+      "rules": [
+        { "from": "telegram:${ALLEN_TELEGRAM_ID}", "agent": "allen" },
+        { "from": "telegram:${KIM_TELEGRAM_ID}", "agent": "kim" },
+        { "from": "telegram:${SUE_TELEGRAM_ID}", "agent": "sue" }
+      ]
+    },
+    "defaults": {
+      "model": "claude-sonnet-4.5",
+      "provider": "anthropic"
+    },
+    "list": [
+      {
+        "id": "allen",
+        "displayName": "Allen's AI",
+        "workspace": "/home/clawdbot/clawd-allen",
+        "sandbox": {
+          "mode": "off"
+        },
+        "systemPrompt": "You are Allen's personal AI assistant. You have full access to the system."
+      },
+      {
+        "id": "kim",
+        "displayName": "Kim's AI",
+        "workspace": "/home/clawdbot/clawd-kim",
+        "sandbox": {
+          "mode": "all",
+          "scope": "agent",
+          "workspaceAccess": "none"
+        },
+        "tools": {
+          "allow": [
+            "sessions_list",
+            "sessions_history",
+            "sessions_send",
+            "web_search",
+            "web_fetch"
+          ],
+          "deny": [
+            "read",
+            "write",
+            "edit",
+            "apply_patch",
+            "exec",
+            "process",
+            "browser",
+            "canvas",
+            "elevated"
+          ]
+        },
+        "systemPrompt": "You are Kim's AI assistant. You can chat, answer questions, and do web searches. You don't have access to files or system commands."
+      },
+      {
+        "id": "sue",
+        "displayName": "Sue's AI",
+        "workspace": "/home/clawdbot/clawd-sue",
+        "sandbox": {
+          "mode": "all",
+          "scope": "agent",
+          "workspaceAccess": "none"
+        },
+        "tools": {
+          "allow": [
+            "sessions_list",
+            "sessions_history",
+            "sessions_send",
+            "web_search",
+            "web_fetch"
+          ],
+          "deny": [
+            "read",
+            "write",
+            "edit",
+            "apply_patch",
+            "exec",
+            "process",
+            "browser",
+            "canvas",
+            "elevated"
+          ]
+        },
+        "systemPrompt": "You are Sue's AI assistant. You can chat, answer questions, and do web searches. You don't have access to files or system commands."
+      }
+    ]
+  },
+  "logging": {
+    "level": "info",
+    "file": "/home/clawdbot/.clawdbot/logs/clawdbot.log"
+  }
+}
