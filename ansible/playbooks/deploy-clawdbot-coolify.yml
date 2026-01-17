@@ -1,0 +1,40 @@
+---
+# Main playbook for deploying Clawdbot to Coolify
+- name: Deploy Clawdbot to Coolify-managed VPS
+  hosts: clawdbot_vps
+  gather_facts: yes
+
+  pre_tasks:
+    - name: Validate BWS_ACCESS_TOKEN environment variable is set
+      ansible.builtin.fail:
+        msg: "BWS_ACCESS_TOKEN environment variable must be set. Export it before running this playbook."
+      when: lookup('env', 'BWS_ACCESS_TOKEN') == ''
+      run_once: yes
+      delegate_to: localhost
+
+  roles:
+    - role: vps-provision
+      become: yes
+      tags: ['vps', 'provision']
+
+- name: Configure Coolify Application
+  hosts: localhost
+  gather_facts: no
+
+  roles:
+    - role: coolify-app
+      tags: ['coolify', 'app', 'config']
+
+  post_tasks:
+    - name: Deployment complete
+      ansible.builtin.debug:
+        msg: |
+          Clawdbot deployment complete!
+
+          Next steps:
+          1. Verify deployment at https://{{ coolify_app_domain }}
+          2. Test Telegram bot by sending a message
+          3. Monitor logs in Coolify UI
+
+          Application URL: https://{{ coolify_app_domain }}
+          Gateway: https://{{ coolify_app_domain }}:18789

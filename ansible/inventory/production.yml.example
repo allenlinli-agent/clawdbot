@@ -1,0 +1,34 @@
+---
+# Inventory template for production Clawdbot deployment
+# Copy this file to production.yml and fill in your values
+
+all:
+  children:
+    clawdbot_servers:
+      hosts:
+        clawdbot_vps:
+          # VPS connection details
+          ansible_host: 72.60.28.11
+          ansible_user: root  # Change to your SSH user
+          ansible_ssh_private_key_file: ~/.ssh/id_rsa  # Path to your SSH key
+          ansible_python_interpreter: /usr/bin/python3
+
+      vars:
+        # Coolify configuration
+        coolify_host: coolify.allenlinli.com
+        coolify_api_url: "https://{{ coolify_host }}/api/v1"
+        coolify_api_token: "{{ vault_coolify_api_token }}"  # Store in vault/secrets.yml
+        coolify_app_uuid: "c4w8c8kwwgw4cggk4k4kco8w"  # Your app UUID from Coolify URL
+
+        # Application configuration
+        coolify_app_domain: clawbot.allenlinli.com
+
+        # Port configuration
+        clawdbot_gateway_port: 18789
+        clawdbot_bridge_port: 18790
+
+        # VPS user configuration
+        clawdbot_user: clawdbot
+
+        # Bitwarden configuration (project name)
+        bitwarden_project: clawdbot

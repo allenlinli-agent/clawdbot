@@ -1,0 +1,60 @@
+---
+# Shared variables for all hosts
+
+# Port configuration
+clawdbot_gateway_port: 18789
+clawdbot_bridge_port: 18790
+
+# Volume configuration
+clawdbot_volume_name: "clawdbot-data"
+clawdbot_volume_mount: "/home/node"
+
+# Health check configuration
+health_check_path: "/"
+health_check_port: 18789
+health_check_interval: 30
+health_check_timeout: 10
+health_check_retries: 3
+health_check_start_period: 60
+
+# Bitwarden configuration
+bitwarden_project: "clawdbot"
+
+# Agent configuration
+agents:
+  allen:
+    id: "allen"
+    displayName: "Allen's AI"
+    workspace: "/home/node/clawd-allen"
+    sandbox_mode: "off"
+    systemPrompt: "You are Allen's personal AI assistant with full access."
+
+  kim:
+    id: "kim"
+    displayName: "Kim's AI"
+    workspace: "/home/node/clawd-kim"
+    sandbox_mode: "all"
+    sandbox_scope: "agent"
+    workspace_access: "none"
+    allowed_tools:
+      - "sessions_list"
+      - "sessions_history"
+      - "sessions_send"
+      - "web_search"
+      - "web_fetch"
+    systemPrompt: "You are Kim's AI assistant. You can chat and search the web."
+
+  sue:
+    id: "sue"
+    displayName: "Sue's AI"
+    workspace: "/home/node/clawd-sue"
+    sandbox_mode: "all"
+    sandbox_scope: "agent"
+    workspace_access: "none"
+    allowed_tools:
+      - "sessions_list"
+      - "sessions_history"
+      - "sessions_send"
+      - "web_search"
+      - "web_fetch"
+    systemPrompt: "You are Sue's AI assistant. You can chat and search the web."
