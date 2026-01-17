@@ -1,0 +1,37 @@
+---
+# Send test message via Telegram API and verify response
+- name: Send test message to Telegram bot
+  ansible.builtin.uri:
+    url: "https://api.telegram.org/bot{{ telegram_bot_token }}/sendMessage"
+    method: POST
+    body_format: json
+    body:
+      chat_id: "{{ telegram_test_chat_id }}"
+      text: "🤖 Clawdbot deployment validation test - {{ ansible_date_time.iso8601 }}"
+    status_code: 200
+  register: telegram_send_result
+  no_log: true
+  when: telegram_test_enabled | default(false)
+
+- name: Display Telegram test result
+  ansible.builtin.debug:
+    msg: "Test message sent to Telegram chat {{ telegram_test_chat_id }}"
+  when: telegram_test_enabled | default(false) and telegram_send_result.status == 200
+
+- name: Validate Telegram API response
+  ansible.builtin.assert:
+    that:
+      - telegram_send_result.status == 200
+      - telegram_send_result.json.ok
+    success_msg: "Telegram bot is responding correctly"
+    fail_msg: "Telegram bot API returned error: {{ telegram_send_result.json.description | default('unknown') }}"
+  when: telegram_test_enabled | default(false)
+
+- name: Skip Telegram test (not enabled)
+  ansible.builtin.debug:
+    msg: "Telegram connectivity test skipped (telegram_test_enabled=false)"
+  when: not (telegram_test_enabled | default(false))
+
+- name: Record Telegram test status
+  ansible.builtin.set_fact:
+    telegram_test_passed: "{{ telegram_send_result.status == 200 if telegram_test_enabled | default(false) else 'skipped' }}"

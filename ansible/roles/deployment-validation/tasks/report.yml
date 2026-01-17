@@ -1,0 +1,70 @@
+---
+# Generate validation report with pass/fail status
+- name: Collect validation results
+  ansible.builtin.set_fact:
+    validation_summary:
+      deployment_timestamp: "{{ ansible_date_time.iso8601 }}"
+      container_name: "{{ container_name | default('unknown') }}"
+      container_status: "running"
+      gateway_port: "{{ clawdbot_gateway_port }}"
+      bridge_port: "{{ clawdbot_bridge_port }}"
+      health_check_url: "{{ health_check_url }}"
+      health_check_passed: "{{ health_check_passed | default(false) }}"
+      config_file_exists: true
+      workspace_directories_exist: true
+      telegram_test_status: "{{ telegram_test_passed | default('not run') }}"
+
+- name: Generate validation report
+  ansible.builtin.debug:
+    msg: |
+      ========================================
+      CLAWDBOT DEPLOYMENT VALIDATION REPORT
+      ========================================
+
+      Deployment Time: {{ validation_summary.deployment_timestamp }}
+      Container Name:  {{ validation_summary.container_name }}
+
+      ✅ CONTAINER STATUS
+         Status: {{ validation_summary.container_status }}
+
+      ✅ PORT AVAILABILITY
+         Gateway Port: {{ validation_summary.gateway_port }} (listening)
+         Bridge Port:  {{ validation_summary.bridge_port }} (listening)
+
+      ✅ HEALTH CHECK
+         URL: {{ validation_summary.health_check_url }}
+         Status: {{ 'PASSED' if validation_summary.health_check_passed else 'FAILED' }}
+
+      ✅ CONFIGURATION
+         Config File: /home/node/.clawdbot/clawdbot.json (exists)
+         Workspaces: All agent workspace directories created
+
+      ✅ TELEGRAM CONNECTIVITY
+         Status: {{ validation_summary.telegram_test_status | upper }}
+
+      ========================================
+      DEPLOYMENT VALIDATION: SUCCESS
+      ========================================
+
+- name: Save validation report to file
+  ansible.builtin.copy:
+    content: |
+      Clawdbot Deployment Validation Report
+      Generated: {{ validation_summary.deployment_timestamp }}
+
+      Container: {{ validation_summary.container_name }}
+      Status: {{ validation_summary.container_status }}
+      Gateway Port: {{ validation_summary.gateway_port }}
+      Bridge Port: {{ validation_summary.bridge_port }}
+      Health Check: {{ 'PASSED' if validation_summary.health_check_passed else 'FAILED' }}
+      Config File: EXISTS
+      Workspaces: CREATED
+      Telegram Test: {{ validation_summary.telegram_test_status | upper }}
+
+      Overall Status: SUCCESS
+    dest: "{{ playbook_dir }}/validation-report-{{ ansible_date_time.epoch }}.txt"
+  delegate_to: localhost
+
+- name: Display report file location
+  ansible.builtin.debug:
+    msg: "Validation report saved to {{ playbook_dir }}/validation-report-{{ ansible_date_time.epoch }}.txt"

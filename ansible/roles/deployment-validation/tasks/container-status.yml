@@ -1,0 +1,48 @@
+---
+# Check container running state via Docker
+- name: Get application container status from Coolify
+  ansible.builtin.uri:
+    url: "{{ coolify_api_url }}/applications/{{ coolify_app_uuid }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ coolify_api_token }}"
+    return_content: true
+  register: coolify_app_status
+  no_log: false
+
+- name: Extract container name from application
+  ansible.builtin.set_fact:
+    container_name: "{{ coolify_app_status.json.name }}"
+  no_log: false
+
+- name: Check Docker container status on VPS
+  ansible.builtin.command:
+    cmd: docker inspect --format='{{`{{.State.Status}}`}}' "{{ container_name }}"
+  register: container_status
+  changed_when: false
+  failed_when: false
+
+- name: Validate container is running
+  ansible.builtin.assert:
+    that:
+      - container_status.rc == 0
+      - container_status.stdout == "running"
+    fail_msg: "Container '{{ container_name }}' is not running (status: {{ container_status.stdout | default('not found') }})"
+    success_msg: "Container '{{ container_name }}' is running"
+
+- name: Get container uptime and restart count
+  ansible.builtin.command:
+    cmd: docker inspect --format='Started:{{`{{.State.StartedAt}}`}} Restarts:{{`{{.RestartCount}}`}}' "{{ container_name }}"
+  register: container_info
+  changed_when: false
+
+- name: Display container information
+  ansible.builtin.debug:
+    msg: "Container {{ container_name }} - {{ container_info.stdout }}"
+
+- name: Check for excessive restarts
+  ansible.builtin.assert:
+    that:
+      - container_info.stdout | regex_search('Restarts:([0-9]+)', '\\1') | first | int < 5
+    fail_msg: "Container has restarted excessively ({{ container_info.stdout }})"
+    success_msg: "Container restart count is healthy"

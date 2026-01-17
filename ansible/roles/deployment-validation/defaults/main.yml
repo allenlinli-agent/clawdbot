@@ -1,0 +1,20 @@
+---
+# Default variables for deployment-validation role
+
+# Port check settings
+port_check_timeout: 30  # seconds to wait for port to become available
+
+# Health check settings
+health_check_url: "http://{{ application_domain }}:{{ clawdbot_gateway_port }}/"
+health_check_retries: 10  # number of retry attempts
+health_check_delay: 3  # seconds between retries
+
+# Telegram test settings
+telegram_test_enabled: false  # set to true to enable Telegram connectivity test
+telegram_test_chat_id: "{{ allen_telegram_id }}"  # default to Allen's chat for validation
+
+# Container name (will be set from Coolify API response)
+container_name: ""
+
+# Application domain (from inventory)
+application_domain: "{{ ansible_host }}"

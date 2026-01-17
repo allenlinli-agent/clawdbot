@@ -1,0 +1,44 @@
+---
+# SSH to VPS and verify configuration file exists
+- name: Check if clawdbot.json exists in container
+  ansible.builtin.command:
+    cmd: docker exec "{{ container_name }}" test -f /home/node/.clawdbot/clawdbot.json
+  register: config_file_check
+  changed_when: false
+  failed_when: config_file_check.rc != 0
+
+- name: Display config file existence check
+  ansible.builtin.debug:
+    msg: "Configuration file /home/node/.clawdbot/clawdbot.json exists in container"
+
+- name: Get config file size and modification time
+  ansible.builtin.command:
+    cmd: docker exec "{{ container_name }}" stat -c '%s %y' /home/node/.clawdbot/clawdbot.json
+  register: config_file_stat
+  changed_when: false
+
+- name: Display config file details
+  ansible.builtin.debug:
+    msg: "Config file: {{ config_file_stat.stdout.split()[0] }} bytes, modified {{ config_file_stat.stdout.split()[1:] | join(' ') }}"
+
+- name: Validate config file is not empty
+  ansible.builtin.assert:
+    that:
+      - config_file_stat.stdout.split()[0] | int > 0
+    fail_msg: "Configuration file is empty (0 bytes)"
+    success_msg: "Configuration file contains data"
+
+- name: Verify workspace directories exist
+  ansible.builtin.command:
+    cmd: docker exec "{{ container_name }}" test -d "{{ item }}"
+  register: workspace_check
+  changed_when: false
+  failed_when: workspace_check.rc != 0
+  loop:
+    - /home/node/clawd-allen
+    - /home/node/clawd-kim
+    - /home/node/clawd-sue
+
+- name: Display workspace validation success
+  ansible.builtin.debug:
+    msg: "All agent workspace directories exist"

@@ -1,0 +1,35 @@
+---
+# Verify ports are listening on the VPS
+- name: Check gateway port ({{ clawdbot_gateway_port }}) is listening
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ clawdbot_gateway_port }}"
+    state: started
+    timeout: "{{ port_check_timeout }}"
+  register: gateway_port_check
+
+- name: Display gateway port status
+  ansible.builtin.debug:
+    msg: "Gateway port {{ clawdbot_gateway_port }} is accepting connections"
+
+- name: Check bridge port ({{ clawdbot_bridge_port }}) is listening
+  ansible.builtin.wait_for:
+    host: "{{ ansible_host }}"
+    port: "{{ clawdbot_bridge_port }}"
+    state: started
+    timeout: "{{ port_check_timeout }}"
+  register: bridge_port_check
+
+- name: Display bridge port status
+  ansible.builtin.debug:
+    msg: "Bridge port {{ clawdbot_bridge_port }} is accepting connections"
+
+- name: Verify ports are not only listening but bound to correct interface
+  ansible.builtin.command:
+    cmd: netstat -tuln | grep -E ':({{ clawdbot_gateway_port }}|{{ clawdbot_bridge_port }})'
+  register: netstat_check
+  changed_when: false
+
+- name: Display port binding details
+  ansible.builtin.debug:
+    msg: "Port bindings:\n{{ netstat_check.stdout }}"

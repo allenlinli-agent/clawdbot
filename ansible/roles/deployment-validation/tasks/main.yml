@@ -1,0 +1,21 @@
+---
+# ansible/roles/deployment-validation/tasks/main.yml
+# Main tasks for deployment validation
+
+- name: Include container status validation
+  ansible.builtin.include_tasks: container-status.yml
+
+- name: Include port availability checks
+  ansible.builtin.include_tasks: port-check.yml
+
+- name: Include health endpoint validation
+  ansible.builtin.include_tasks: health-endpoint.yml
+
+- name: Include configuration file validation
+  ansible.builtin.include_tasks: config-file.yml
+
+- name: Include Telegram connectivity test
+  ansible.builtin.include_tasks: telegram-test.yml
+
+- name: Generate validation report
+  ansible.builtin.include_tasks: report.yml

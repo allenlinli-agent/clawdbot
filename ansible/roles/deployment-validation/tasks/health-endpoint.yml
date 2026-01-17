@@ -1,0 +1,28 @@
+---
+# HTTP GET to health check endpoint with retry logic
+- name: Wait for health check endpoint to be available
+  ansible.builtin.uri:
+    url: "{{ health_check_url }}"
+    method: GET
+    status_code: 200
+    timeout: 10
+  register: health_check_result
+  until: health_check_result.status == 200
+  retries: "{{ health_check_retries }}"
+  delay: "{{ health_check_delay }}"
+
+- name: Display health check response
+  ansible.builtin.debug:
+    msg: "Health check endpoint {{ health_check_url }} returned: {{ health_check_result.status }} {{ health_check_result.msg | default('OK') }}"
+
+- name: Validate health check response body (if applicable)
+  ansible.builtin.assert:
+    that:
+      - health_check_result.status == 200
+    success_msg: "Health check endpoint is healthy"
+    fail_msg: "Health check endpoint returned unexpected status"
+
+- name: Record health check timestamp
+  ansible.builtin.set_fact:
+    health_check_timestamp: "{{ ansible_date_time.iso8601 }}"
+    health_check_passed: true
