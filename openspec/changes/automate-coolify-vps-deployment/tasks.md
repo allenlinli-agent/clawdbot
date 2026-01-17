@@ -5,8 +5,8 @@
 - [x] 1.3 Create `ansible/playbooks/` directory for playbooks
 - [x] 1.4 Create `ansible/inventory/` directory for inventory files
 - [x] 1.5 Create `ansible/group_vars/` directory for shared variables
-- [ ] 1.6 Install Ansible 2.15+ locally for testing
-- [ ] 1.7 Install `community.general` Ansible collection: `ansible-galaxy collection install community.general`
+- [x] 1.6 Install Ansible 2.15+ locally for testing
+- [x] 1.7 Install `community.general` Ansible collection: `ansible-galaxy collection install community.general`
 
 ## 2. Bitwarden Secrets Manager Setup
 
