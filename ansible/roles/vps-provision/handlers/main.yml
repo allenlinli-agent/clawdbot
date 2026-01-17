@@ -1,0 +1,14 @@
+---
+# Handlers for vps-provision role
+
+- name: Restart SSH
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+  become: yes
+
+- name: Restart UFW
+  ansible.builtin.systemd:
+    name: ufw
+    state: restarted
+  become: yes

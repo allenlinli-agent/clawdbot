@@ -1,0 +1,17 @@
+---
+# Default variables for vps-provision role
+
+# User configuration
+clawdbot_user: clawdbot
+
+# Port configuration
+clawdbot_gateway_port: 18789
+clawdbot_bridge_port: 18790
+
+# Firewall allowed ports
+firewall_allowed_ports:
+  - 22    # SSH
+  - 80    # HTTP
+  - 443   # HTTPS
+  - 18789 # Clawdbot gateway
+  - 18790 # Clawdbot bridge

@@ -1,0 +1,16 @@
+---
+# Main tasks file for vps-provision role
+- name: Include package installation tasks
+  ansible.builtin.include_tasks: packages.yml
+
+- name: Include Docker installation tasks
+  ansible.builtin.include_tasks: docker.yml
+
+- name: Include user creation tasks
+  ansible.builtin.include_tasks: user.yml
+
+- name: Include SSH hardening tasks
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: Include firewall configuration tasks
+  ansible.builtin.include_tasks: firewall.yml

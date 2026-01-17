@@ -1,0 +1,33 @@
+---
+# Create clawdbot user with Docker access and sudo privileges
+- name: Create clawdbot user
+  ansible.builtin.user:
+    name: "{{ clawdbot_user }}"
+    comment: "Clawdbot application user"
+    shell: /bin/bash
+    create_home: yes
+    state: present
+  become: yes
+
+- name: Add clawdbot user to docker group
+  ansible.builtin.user:
+    name: "{{ clawdbot_user }}"
+    groups: docker
+    append: yes
+  become: yes
+
+- name: Add clawdbot user to sudo group
+  ansible.builtin.user:
+    name: "{{ clawdbot_user }}"
+    groups: sudo
+    append: yes
+  become: yes
+
+- name: Configure passwordless sudo for clawdbot user
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers.d/clawdbot
+    line: "{{ clawdbot_user }} ALL=(ALL) NOPASSWD:ALL"
+    create: yes
+    mode: '0440'
+    validate: 'visudo -cf %s'
+  become: yes

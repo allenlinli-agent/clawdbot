@@ -1,0 +1,50 @@
+---
+# Configure UFW firewall
+- name: Set default UFW policies
+  community.general.ufw:
+    direction: "{{ item.direction }}"
+    policy: "{{ item.policy }}"
+  loop:
+    - { direction: 'incoming', policy: 'deny' }
+    - { direction: 'outgoing', policy: 'allow' }
+  become: yes
+
+- name: Allow SSH through firewall
+  community.general.ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+  become: yes
+
+- name: Allow HTTP through firewall
+  community.general.ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+  become: yes
+
+- name: Allow HTTPS through firewall
+  community.general.ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+  become: yes
+
+- name: Allow Clawdbot gateway port through firewall
+  community.general.ufw:
+    rule: allow
+    port: "{{ clawdbot_gateway_port }}"
+    proto: tcp
+  become: yes
+
+- name: Allow Clawdbot bridge port through firewall
+  community.general.ufw:
+    rule: allow
+    port: "{{ clawdbot_bridge_port }}"
+    proto: tcp
+  become: yes
+
+- name: Enable UFW firewall
+  community.general.ufw:
+    state: enabled
+  become: yes
