@@ -26,6 +26,51 @@ Keep this managed block so 'openspec update' can refresh the instructions.
 - Tests: colocated `*.test.ts`.
 - Docs: `docs/` (images, queue, Pi config). Built output lives in `dist/`.
 - Installers served from `https://clawd.bot/*`: live in the sibling repo `../clawd.bot` (`public/install.sh`, `public/install-cli.sh`, `public/install.ps1`).
+- Ansible deployment: `ansible/` (playbooks, roles, inventory for Coolify VPS deployment).
+
+## Deployment
+
+### Ansible Automation for Coolify
+Clawdbot can be deployed to a Coolify-managed VPS using Ansible automation located in `ansible/`:
+
+**Quick Start:**
+```bash
+cd ansible
+export BWS_ACCESS_TOKEN="your_bitwarden_token"
+ansible-playbook -i inventory/production.yml playbooks/deploy-clawdbot-coolify.yml --ask-vault-pass
+```
+
+**What it does:**
+- Provisions VPS (Docker, UFW firewall, SSH hardening)
+- Retrieves secrets from Bitwarden Secrets Manager
+- Configures Coolify application via REST API
+- Sets environment variables for bootstrap script
+- Validates deployment health (container, ports, health endpoint, Telegram)
+
+**Key files:**
+- `playbooks/deploy-clawdbot-coolify.yml` - Main deployment playbook
+- `roles/vps-provision/` - VPS setup and hardening
+- `roles/coolify-app/` - Coolify API configuration
+- `roles/clawdbot-config/` - Configuration validation
+- `roles/deployment-validation/` - Post-deployment health checks
+- `inventory/production.yml.example` - Inventory template (copy to `production.yml`)
+- `vault/secrets.yml` - Encrypted infrastructure secrets (Coolify API token)
+- `tests/test-bootstrap-integration.yml` - Bootstrap script integration test
+
+**Documentation:**
+- Full guide: `docs/deployment/ansible-coolify.md`
+- Environment variable contract: `ansible/roles/clawdbot-config/ENV_VAR_CONTRACT.md`
+- Test documentation: `ansible/tests/README.md`
+
+**Bootstrap script integration:**
+The `scripts/coolify-bootstrap.sh` script runs at container startup and generates `/home/node/.clawdbot/clawdbot.json` from environment variables set by Ansible in Coolify. See `ENV_VAR_CONTRACT.md` for the complete contract between Ansible and the bootstrap script.
+
+**Testing:**
+Run integration tests to validate bootstrap script with Docker:
+```bash
+cd ansible/tests
+ansible-playbook test-bootstrap-integration.yml
+```
 
 ## Docs Linking (Mintlify)
 - Docs are hosted on Mintlify (docs.clawd.bot).

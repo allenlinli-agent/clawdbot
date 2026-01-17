@@ -70,6 +70,27 @@ clawdbot agent --message "Ship checklist" --thinking high
 
 Upgrading? [Updating guide](https://docs.clawd.bot/install/updating) (and run `clawdbot doctor`).
 
+## Deployment (Production)
+
+### Ansible Automation for Coolify
+
+Deploy Clawdbot to a Coolify-managed VPS with full automation:
+
+```bash
+cd ansible
+export BWS_ACCESS_TOKEN="your_bitwarden_token"
+ansible-playbook -i inventory/production.yml playbooks/deploy-clawdbot-coolify.yml --ask-vault-pass
+```
+
+**Features:**
+- 🚀 One-command deployment to VPS
+- 🔐 Bitwarden Secrets Manager integration
+- 🔒 Automated VPS hardening (Docker, UFW firewall, SSH)
+- ✅ Multi-level health checks (container, ports, Telegram)
+- 📝 Complete validation reports
+
+**Documentation:** [`docs/deployment/ansible-coolify.md`](docs/deployment/ansible-coolify.md)
+
 ## From source (development)
 
 Prefer `pnpm` for builds from source. Bun is optional for running TypeScript directly.
