@@ -29,6 +29,20 @@
     - role: coolify-app
       tags: ['coolify', 'app', 'config']
 
+    - role: clawdbot-config
+      tags: ['coolify', 'config', 'validation']
+
+- name: Validate Deployment
+  hosts: clawdbot_vps
+  gather_facts: yes
+
+  vars_files:
+    - ../vault/secrets.yml
+
+  roles:
+    - role: deployment-validation
+      tags: ['validation', 'verify']
+
   post_tasks:
     - name: Deployment complete
       ansible.builtin.debug:
