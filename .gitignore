@@ -18,6 +18,10 @@ ui/test-results/
 # Bun build artifacts
 *.bun-build
 apps/macos/.build/
+
+# Ansible sensitive files
+ansible/inventory/production.yml
+ansible/vault/secrets.yml
 apps/shared/ClawdbotKit/.build/
 **/ModuleCache/
 bin/
