@@ -16,6 +16,8 @@ services:
       - "18790:18790"
     init: true
     restart: unless-stopped
+    labels:
+      - "traefik.http.middlewares.gateway-auth.basicauth.users=${GATEWAY_AUTH_USERNAME}:${GATEWAY_AUTH_PASSWORD_HASH}"
     command:
       - node
       - dist/index.js
