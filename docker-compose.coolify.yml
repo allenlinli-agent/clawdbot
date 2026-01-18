@@ -17,8 +17,9 @@ services:
     init: true
     restart: unless-stopped
     labels:
+      - "traefik.enable=true"
       - "traefik.http.middlewares.gateway-auth.basicauth.users=allen:$$2y$$05$$1bOEX6N.Y.FfOh/cGtQ6JOcCJU9BQDq.F8g94o6wZqtA3iCGUk9qS"
-      - "traefik.http.routers.clawdbot_gateway-0.middlewares=gateway-auth@docker"
+      - "coolify.middlewares=gateway-auth"
     command:
       - node
       - dist/index.js
