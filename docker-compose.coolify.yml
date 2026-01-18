@@ -18,6 +18,8 @@ services:
     restart: unless-stopped
     labels:
       - "traefik.http.middlewares.gateway-auth.basicauth.users=${GATEWAY_AUTH_USERNAME}:${GATEWAY_AUTH_PASSWORD_HASH}"
+      - "traefik.http.routers.clawdbot-gateway-http.middlewares=gateway-auth"
+      - "traefik.http.routers.clawdbot-gateway-https.middlewares=gateway-auth"
     command:
       - node
       - dist/index.js
