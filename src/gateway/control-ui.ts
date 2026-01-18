@@ -7,6 +7,7 @@ const ROOT_PREFIX = "/";
 
 export type ControlUiRequestOptions = {
   basePath?: string;
+  token?: string;
 };
 
 export function normalizeControlUiBasePath(basePath?: string): string {
@@ -86,10 +87,10 @@ function serveFile(res: ServerResponse, filePath: string) {
   res.end(fs.readFileSync(filePath));
 }
 
-function injectControlUiBasePath(html: string, basePath: string): string {
-  const script = `<script>window.__CLAWDBOT_CONTROL_UI_BASE_PATH__=${JSON.stringify(
-    basePath,
-  )};</script>`;
+function injectControlUiConfig(html: string, basePath: string, token?: string): string {
+  const basePathScript = `window.__CLAWDBOT_CONTROL_UI_BASE_PATH__=${JSON.stringify(basePath)}`;
+  const tokenScript = token ? `window.__CLAWDBOT_GATEWAY_TOKEN__=${JSON.stringify(token)}` : "";
+  const script = `<script>${[basePathScript, tokenScript].filter(Boolean).join(";")}</script>`;
   if (html.includes("__CLAWDBOT_CONTROL_UI_BASE_PATH__")) return html;
   const headClose = html.indexOf("</head>");
   if (headClose !== -1) {
@@ -98,11 +99,11 @@ function injectControlUiBasePath(html: string, basePath: string): string {
   return `${script}${html}`;
 }
 
-function serveIndexHtml(res: ServerResponse, indexPath: string, basePath: string) {
+function serveIndexHtml(res: ServerResponse, indexPath: string, basePath: string, token?: string) {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   const raw = fs.readFileSync(indexPath, "utf8");
-  res.end(injectControlUiBasePath(raw, basePath));
+  res.end(injectControlUiConfig(raw, basePath, token));
 }
 
 function isSafeRelativePath(relPath: string) {
@@ -181,7 +182,7 @@ export function handleControlUiHttpRequest(
 
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     if (path.basename(filePath) === "index.html") {
-      serveIndexHtml(res, filePath, basePath);
+      serveIndexHtml(res, filePath, basePath, opts?.token);
       return true;
     }
     serveFile(res, filePath);
@@ -191,7 +192,7 @@ export function handleControlUiHttpRequest(
   // SPA fallback (client-side router): serve index.html for unknown paths.
   const indexPath = path.join(root, "index.html");
   if (fs.existsSync(indexPath)) {
-    serveIndexHtml(res, indexPath, basePath);
+    serveIndexHtml(res, indexPath, basePath, opts?.token);
     return true;
   }
 

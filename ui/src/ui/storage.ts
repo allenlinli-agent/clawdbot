@@ -21,9 +21,16 @@ export function loadSettings(): UiSettings {
     return `${proto}://${location.host}`;
   })();
 
+  const injectedToken = (() => {
+    if (typeof window !== "undefined" && typeof (window as unknown as { __CLAWDBOT_GATEWAY_TOKEN__?: string }).__CLAWDBOT_GATEWAY_TOKEN__ === "string") {
+      return (window as unknown as { __CLAWDBOT_GATEWAY_TOKEN__: string }).__CLAWDBOT_GATEWAY_TOKEN__;
+    }
+    return "";
+  })();
+
   const defaults: UiSettings = {
     gatewayUrl: defaultUrl,
-    token: "",
+    token: injectedToken,
     sessionKey: "main",
     lastActiveSessionKey: "main",
     theme: "system",

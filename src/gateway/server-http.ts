@@ -217,6 +217,7 @@ export function createGatewayHttpServer(opts: {
         if (
           handleControlUiHttpRequest(req, res, {
             basePath: controlUiBasePath,
+            token: resolvedAuth.token,
           })
         )
           return;
